@@ -3,14 +3,17 @@ package br.com.juliancambraia.tasks.controller;
 import br.com.juliancambraia.tasks.controller.converter.TaskDTOConverter;
 import br.com.juliancambraia.tasks.controller.dto.TaskDTO;
 import br.com.juliancambraia.tasks.enums.TaskState;
-import br.com.juliancambraia.tasks.model.Task;
 import br.com.juliancambraia.tasks.service.TaskService;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -40,8 +43,15 @@ public class TaskController {
   }
   
   @PostMapping
-  public Mono<TaskDTO> createTask(@RequestBody Task task) {
-    return service.insert(task)
+  public Mono<TaskDTO> createTask(@RequestBody TaskDTO taskDTO) {
+    return service.insert(converter.convert(taskDTO))
         .map(converter::convert);
+  }
+  
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public Mono<Void> delete(@PathVariable String id) {
+    return Mono.just(id)
+        .flatMap(service::deleteById);
   }
 }

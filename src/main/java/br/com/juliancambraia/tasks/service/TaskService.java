@@ -32,4 +32,8 @@ public class TaskService {
   public Page<Task> findPaginated(Task task, Integer pageNumber, Integer pageSize) {
     return taskCustomRepository.findPaginated(task, pageNumber, pageSize);
   }
+  
+  public Mono<Void> deleteById(String id) {
+    return Mono.fromRunnable( () -> repository.deleteById(id));
+  }
 }
