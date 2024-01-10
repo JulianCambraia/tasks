@@ -2,16 +2,17 @@ package br.com.juliancambraia.tasks.controller;
 
 import br.com.juliancambraia.tasks.controller.converter.TaskDTOConverter;
 import br.com.juliancambraia.tasks.controller.dto.TaskDTO;
+import br.com.juliancambraia.tasks.enums.TaskState;
 import br.com.juliancambraia.tasks.model.Task;
 import br.com.juliancambraia.tasks.service.TaskService;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/tasks")
@@ -27,9 +28,15 @@ public class TaskController {
   }
   
   @GetMapping
-  public Mono<List<TaskDTO>> getTasks() {
-    return service.list()
-        .map(converter::convertList);
+  public Page<TaskDTO> getTasks(@RequestParam(required = false) String id,
+                                @RequestParam(required = false) String title,
+                                @RequestParam(required = false) String description,
+                                @RequestParam(required = false, defaultValue = "0") int priority,
+                                @RequestParam(required = false) TaskState state,
+                                @RequestParam(value = "pageNumber", defaultValue = "0") Integer pageNumber,
+                                @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize) {
+    return service.findPaginated(converter.convert(id, title, description, priority, state), pageNumber, pageSize)
+        .map(converter::convert);
   }
   
   @PostMapping
